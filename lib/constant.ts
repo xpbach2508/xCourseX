@@ -57,16 +57,24 @@ export type UserItem = {
   role: string | null;
 };
 
-export type NotificationProps = {
+export type NotificationDataProps = {
   type: string;
   subjects: objectNoti[];
-  diObj: objectNoti;
+  directObj: objectNoti;
   inObj: objectNoti;
-  prObj: objectNoti;
+  prepObj: objectNoti;
   subjectCount: number;
+}
+
+export type NotiProps = NotificationDataProps & {
+  id: string;
+  createdAt: Date;
+  readAt: Date | null;
 }
 
 export type objectNoti = {
   id: string;
   type: string;
+  name: string | null;
+  image: string | null;
 }

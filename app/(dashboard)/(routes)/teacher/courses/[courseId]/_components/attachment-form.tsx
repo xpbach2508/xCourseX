@@ -62,13 +62,13 @@ export const AttachmentForm = ({
         Attachments
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
-          {!isEditing && !initialData.imageUrl && (
+          {!isEditing && !initialData.image && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
               Add attachment
             </>
           )}
-          {!isEditing && initialData.imageUrl && (
+          {!isEditing && initialData.image && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
               Add attachment

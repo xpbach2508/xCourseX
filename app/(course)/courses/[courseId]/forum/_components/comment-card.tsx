@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getRole } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-import { NotificationProps } from "@/lib/constant";
+import { NotificationDataProps } from "@/lib/constant";
 import { useSocket } from "@/components/providers/socket/socket-context";
 import { emitSocketEventClient } from "@/lib/socket/client/emitSocketEventClient";
 
@@ -95,14 +95,14 @@ export const CommentCard = ({
     } else {
       toast.success(response.message);
       if (response.message === "Liked") {
-        var newNoti : NotificationProps = {
-          type: 'like:comment',
+        var newNoti : NotificationDataProps = {
+          type: 'likeComment',
           subjectCount: 1,
-          subjects: [{ id: forumContext.userId ?? '', type: 'user' }],
-          diObj: { id: id, type: 'comment' },
-          inObj: { id: userId ?? '', type: 'user'},
-          prObj: { id: forumContext.courseId, type: "course" },
-      }
+          subjects: [{ id: forumContext.userId ?? '', type: 'user', name: forumContext.userName ?? '', image: forumContext.userImage ?? '' }],
+          directObj: { id: id, type: 'comment', name: null, image: null },
+          inObj: { id: userId ?? '', type: 'user', name: null, image: null },
+          prepObj: { id: forumContext.courseId, type: "course", name: null, image: null },
+        }
 
         emitSocketEventClient(SocketClient, "like:comment", {message: `${forumContext.userName} liked your comment.`, userId: userId})
 
@@ -110,7 +110,7 @@ export const CommentCard = ({
           method: "POST",
           body: JSON.stringify(newNoti),
           headers,
-        })
+        });
       };
       router.refresh();
     }

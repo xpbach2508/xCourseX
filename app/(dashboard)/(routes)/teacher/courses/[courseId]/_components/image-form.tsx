@@ -18,7 +18,7 @@ interface ImageFormProps {
 }
 
 const formSchema = z.object({
-  imageUrl: z.string().min(1, {
+  image: z.string().min(1, {
     message: "An image is mandatory",
   }),
 });
@@ -46,13 +46,13 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
         Course image
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
-          {!isEditing && !initialData.imageUrl && (
+          {!isEditing && !initialData.image && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
               Add image
             </>
           )}
-          {!isEditing && initialData.imageUrl && (
+          {!isEditing && initialData.image && (
             <>
               <Pencil className="h-4 w-4 mr-2" />
               Edit
@@ -61,7 +61,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
         </Button>
       </div>
       {!isEditing &&
-        (!initialData.imageUrl ? (
+        (!initialData.image ? (
           <div className="flex items-center justify-center h-60 bg-slate-200 rounded-md">
             <ImageIcon className="h-10 w-10 text-slate-500" />
           </div>
@@ -71,7 +71,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
               alt="Upload"
               fill
               className="object-cover rounded-md"
-              src={initialData.imageUrl}
+              src={initialData.image}
             />
           </div>
         ))}
@@ -81,7 +81,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
             endpoint="courseImage"
             onChange={(url, fileKey) => {
               if (url) {
-                onSubmit({ imageUrl: url });
+                onSubmit({ image: url });
               }
             }}
           />

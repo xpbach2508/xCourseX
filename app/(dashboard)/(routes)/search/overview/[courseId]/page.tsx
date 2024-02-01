@@ -65,7 +65,7 @@ const CourseIdOverview = async ({
       </Link>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="order-1 col-span-1 lg:col-span-3 flex flex-col space-y-6">
-          <Thumbnail imgUrl={course.imageUrl!} />
+          <Thumbnail imgUrl={course.image!} />
           <CourseDescription
             title={course.title}
             numChapter={course.chapters.length}
