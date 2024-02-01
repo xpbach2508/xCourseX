@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         }
     
         var body = await req.json();
-        const userReceiveNoti = (body.diObj?.type === 'user' ? body.diObj : body.inObj)?.id ?? '';
+        const userReceiveNoti = (body.directObj?.type === 'user' ? body.directObj : body.inObj)?.id ?? '';
         const createNoti = await db.notification.create({
             data: {
                 userId: userReceiveNoti,
@@ -20,9 +20,9 @@ export async function POST(req: Request) {
                 readAt: null,
                 subjectCount: Object.keys(body.subjects).length,
                 subjects: body.subjects,
-                directObj: body.diObj,
+                directObj: body.directObj,
                 inObj: body.inObj,
-                prepObj: body.prObj,
+                prepObj: body.prepObj,
             }
         });
         if (!createNoti) return NextResponse.json({message: "Cannot create noti"}, {status: 500});

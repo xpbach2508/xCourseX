@@ -1,5 +1,6 @@
 import { NotiProps } from "../constant";
-import Handlebars from "handlebars";
+// @ts-ignore
+import Handlebars from 'handlebars/dist/cjs/handlebars';
 
 
 const StringTemplate: { [key: string]: string } = {
