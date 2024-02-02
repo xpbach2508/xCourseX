@@ -8,6 +8,7 @@ import { NotificationDataProps } from "@/lib/constant";
 import { useSocket } from "@/components/providers/socket/socket-context";
 import { emitSocketEventClient } from "@/lib/socket/client/emitSocketEventClient";
 import { useSession } from "next-auth/react";
+import handleNotification from "@/lib/notification-template/handleNotification";
 
 interface EnrollmentProps {
     courseId: string;
@@ -34,13 +35,14 @@ export const Enrollment = ({
                 inObj: { id: response.data.teacher.userId ?? '', type: 'user', name: null, image: null },
                 prepObj: { id: '', type: "nothing", name: null, image: null },
               }
-      
-            emitSocketEventClient(SocketClient, "enroll:course", {message: `${session?.user.name} request to access your course.`, userId: response.data.teacher.userId})
-    
-            const pushNoti = await fetch(`/api/users/notification`, {
-            method: "POST",
-            body: JSON.stringify(newNoti),
-            });
+            
+            handleNotification(
+            SocketClient,
+            "enroll:course",
+            `${session?.user.name} request to access your course.`,
+            response.data.teacher.userId,
+            newNoti
+            );
         } catch {
             toast.error("Something went wrong");
         }

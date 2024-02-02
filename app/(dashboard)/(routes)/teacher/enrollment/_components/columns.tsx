@@ -1,25 +1,19 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { Enroll } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react"
-import { Checkbox } from "@/components/ui/checkbox"
+import { ArrowUpDown } from "lucide-react"
 
 import {useRouter} from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Link from "next/link"
-import { db } from "@/lib/db"
 import axios from "axios";
 import toast from "react-hot-toast";
+import { NotificationDataProps } from '@/lib/constant';
+import { useSession } from 'next-auth/react';
+import { useSocket } from "@/components/providers/socket/socket-context";
+import handleNotification from '@/lib/notification-template/handleNotification';
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0);
@@ -128,10 +122,27 @@ export const columns: ColumnDef<WaitlistItem>[] = [
 
       const forceUpdate = useForceUpdate();
       const router = useRouter();
+      const {data: session} = useSession();
+      const { socket: SocketClient, isConnected } = useSocket();
       const handleAcceptClick = async () => {
         try {
           const response = await axios.post(`/api/enroll/${id}`);
-          console.log("User approved successfully:", response.data);
+          var newNoti : NotificationDataProps = {
+            type: 'acceptEnroll',
+            subjectCount: 1,
+            subjects: [{ id: session?.user.uid ?? '', type: 'user', name: session?.user.name ?? '', image: session?.user.image ?? '' }],
+            directObj: { id: '', type: 'nothing', name: null, image: null },
+            inObj: { id: response.data.userId ?? '', type: 'user', name: null, image: null },
+            prepObj: { id: response.data.courseId, type: "course", name: null, image: null },
+          }
+          
+          handleNotification(
+            SocketClient,
+            "enroll:accept",
+            `${session?.user.name} accept your enrollment.`,
+            response.data.userId,
+            newNoti
+          );
           toast.success("Enroll Approved");
           setApproved(true);
           setIsAcceptVisible(false);

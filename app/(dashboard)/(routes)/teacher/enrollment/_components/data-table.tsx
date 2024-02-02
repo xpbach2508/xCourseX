@@ -24,13 +24,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { PlusCircle } from "lucide-react"
 import axios from "axios";
 import toast from "react-hot-toast";
 import {useRouter} from 'next/navigation'
 import { NotificationDataProps } from "@/lib/constant"
 import { useSession } from "next-auth/react"
 import { useSocket } from "@/components/providers/socket/socket-context"
+import handleNotification from "@/lib/notification-template/handleNotification"
 import { emitSocketEventClient } from "@/lib/socket/client/emitSocketEventClient"
 
 type WaitlistItem = {
@@ -91,23 +91,25 @@ export function DataTable<TData extends WaitlistItem>({
       } else {
         for (const row of selectedRows) {
           const enrollId = row.original.id;
-          const response = await axios.post(`/api/enroll/${enrollId}`);
-          console.log(`User ${enrollId} approved successfully:`, response.data);
-          var newNoti : NotificationDataProps = {
-            type: 'acceptEnroll',
-            subjectCount: 1,
-            subjects: [{ id: session?.user.uid ?? '', type: 'user', name: session?.user.name ?? '', image: session?.user.image ?? '' }],
-            directObj: { id: '', type: 'nothing', name: null, image: null },
-            inObj: { id: response.data.userId ?? '', type: 'user', name: null, image: null },
-            prepObj: { id: response.data.courseId, type: "course", name: null, image: null },
+          if (!row.original.isAccepted) {
+            const response = await axios.post(`/api/enroll/${enrollId}`);
+            var newNoti : NotificationDataProps = {
+              type: 'acceptEnroll',
+              subjectCount: 1,
+              subjects: [{ id: session?.user.uid ?? '', type: 'user', name: session?.user.name ?? '', image: session?.user.image ?? '' }],
+              directObj: { id: '', type: 'nothing', name: null, image: null },
+              inObj: { id: response.data.userId ?? '', type: 'user', name: null, image: null },
+              prepObj: { id: response.data.courseId, type: "course", name: null, image: null },
+            }
+            
+            handleNotification(
+              SocketClient,
+              "enroll:accept",
+              `${session?.user.name} accept your enrollment.`,
+              response.data.userId,
+              newNoti
+            );
           }
-  
-          emitSocketEventClient(SocketClient, "enroll:accept", {message: `${session?.user.name} accept your enrollment.`, userId: response.data.userId})
-
-          const pushNoti = await fetch(`/api/users/notification`, {
-          method: "POST",
-          body: JSON.stringify(newNoti),
-          });
         }
   
         toast.success("Enrolls Approved");
