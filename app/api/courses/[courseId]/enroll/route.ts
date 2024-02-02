@@ -20,8 +20,15 @@ export async function POST(
                 courseId: params.courseId
             }
           });
-
-        return NextResponse.json(enrollResult);
+        const teacher = await db.course.findFirst({
+            where: {
+                id: params.courseId
+            },
+            select: {
+                userId: true
+            }
+        })
+        return NextResponse.json({enrollResult, teacher});
 
     } catch (error) {
         console.log("COURSE_ENROLL", error);

@@ -19,25 +19,17 @@ export const getNotification = async (userId: string) => {
       subjects: noti.subjects as objectNoti[]
     }));
     const fullDataNoti = await Promise.all(mappedNotification.map(async (noti) => {
-      // @ts-ignore
-      var prepObjData = await db[noti.prepObj.type].findUnique({
-        where: {
-          id: noti.prepObj.id,
-        }
-      });
-      // @ts-ignore
-      var inObjData = await db[noti.inObj.type].findUnique({
-        where: {
-          id: noti.inObj.id,
-        }
-      });
-      // @ts-ignore
-      var directObjData = await db[noti.directObj.type].findUnique({
-        where: {
-          id: noti.directObj.id,
-        }
-      });
-      
+      var prepObjData;
+      if (noti.prepObj.type === "nothing") {
+        prepObjData = noti.prepObj;
+      } else {
+        // @ts-ignore
+        prepObjData = await db[noti.prepObj.type].findUnique({
+          where: {
+            id: noti.prepObj.id,
+          },
+        });
+      }
       if (noti.prepObj.type == 'course') {
         prepObjData = {
           id: prepObjData.id,
@@ -46,6 +38,34 @@ export const getNotification = async (userId: string) => {
           type: 'course'
         };
       };
+
+      // @ts-ignore
+      var inObjData = await db[noti.inObj.type].findUnique({
+        where: {
+          id: noti.inObj.id,
+        }
+      });
+
+      var directObjData;
+      if (noti.directObj.type === 'nothing') {
+        directObjData = noti.directObj;
+      } else {
+        // @ts-ignore
+        directObjData = await db[noti.directObj.type].findUnique({
+          where: {
+            id: noti.directObj.id,
+          }
+        });
+        if (noti.directObj.type == 'course') {
+          directObjData = {
+            id: directObjData.id,
+            name: directObjData.title,
+            image: directObjData.image,
+            type: 'course'
+          };
+        };
+      }
+      
 
       return { ...noti,
         inObj: inObjData as objectNoti,

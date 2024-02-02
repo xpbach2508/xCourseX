@@ -48,6 +48,14 @@ export const SocketProvider = ({children}: {children: React.ReactNode}) => {
                 toast(message);
             });
 
+            socketClient.on("new:enroll", (message) => {
+                toast(message);
+            });
+
+            socketClient.on("accepted:enroll", (message) => {
+                toast(message);
+            });
+
             return () => {
                 socketClient.disconnect();
             };

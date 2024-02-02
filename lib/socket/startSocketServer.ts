@@ -68,6 +68,8 @@ export const initializeSocketIO = (
             console.log("User connected 🗼. userId: ", user.id, socket.id);
 
             eventSub(socket, "like:comment", "like:noti");
+            eventSub(socket, "enroll:course", "new:enroll");
+            eventSub(socket, "enroll:accept", "accepted:enroll");
 
             socket.on("disconnect", () => {
                 console.log("User has disconnected. userId: ", user.id);

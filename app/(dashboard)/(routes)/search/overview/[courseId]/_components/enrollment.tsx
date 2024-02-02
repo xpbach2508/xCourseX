@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { NotificationDataProps } from "@/lib/constant";
+import { useSocket } from "@/components/providers/socket/socket-context";
+import { emitSocketEventClient } from "@/lib/socket/client/emitSocketEventClient";
+import { useSession } from "next-auth/react";
 
 interface EnrollmentProps {
     courseId: string;
@@ -16,13 +20,27 @@ export const Enrollment = ({
 }: EnrollmentProps) => {
 
     const [isRequestEnrolled, setIsEnrolled] = useState(isEnrolled);
-
+    const { socket: SocketClient, isConnected } = useSocket();
+    const {data: session} = useSession();
     const onClick = async () => {
         try {
             const response = await axios.post(`/api/courses/${courseId}/enroll`);
-            console.log("User enrolled successfully:", response.data);
             setIsEnrolled(true);
-            toast.success("Course enrolled");
+            var newNoti : NotificationDataProps = {
+                type: 'newEnroll',
+                subjectCount: 1,
+                subjects: [{ id: session?.user.uid ?? '', type: 'user', name: session?.user.name ?? '', image: session?.user.image ?? '' }],
+                directObj: { id: courseId, type: 'course', name: null, image: null },
+                inObj: { id: response.data.teacher.userId ?? '', type: 'user', name: null, image: null },
+                prepObj: { id: '', type: "nothing", name: null, image: null },
+              }
+      
+            emitSocketEventClient(SocketClient, "enroll:course", {message: `${session?.user.name} request to access your course.`, userId: response.data.teacher.userId})
+    
+            const pushNoti = await fetch(`/api/users/notification`, {
+            method: "POST",
+            body: JSON.stringify(newNoti),
+            });
         } catch {
             toast.error("Something went wrong");
         }
