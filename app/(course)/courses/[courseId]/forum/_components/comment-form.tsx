@@ -54,9 +54,9 @@ const CommentForm = ({ parentId, parentUserId }: ParentIdProps) => {
         type: isReplying ? 'replyComment' : 'commentForum',
         subjectCount: 1,
         subjects: [{ id: forumContext.userId ?? '', type: 'user', name: forumContext.userName ?? '', image: forumContext.userImage ?? '' }],
-        directObj: { id: forumContext.courseId, type: 'course', name: null, image: null },
+        directObj: { id: isReplying ? '' : forumContext.courseId, type: isReplying ? 'nothing' : 'course', name: null, image: null },
         inObj: { id: isReplying ? parentUserId : response.teacher.userId, type: 'user', name: null, image: null },
-        prepObj: { id: forumContext.courseId, type: "course", name: null, image: null },
+        prepObj: { id: isReplying ? forumContext.courseId : '', type: isReplying ? "course" : 'nothing', name: null, image: null },
       }
     
       if (!isTeacher) 

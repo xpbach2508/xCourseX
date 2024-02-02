@@ -14,5 +14,5 @@ const StringTemplate: { [key: string]: string } = {
 export const notiTemplate = (noti: NotiProps) => {
     const notiString = Handlebars.compile(StringTemplate[noti.type]);
     const subjectName = noti.subjects.map((sub) => sub.name).join(', ');
-    return notiString({subject: subjectName, directObj: noti.directObj.name, inObj: noti.inObj.name, prepObj: noti.prepObj.name ?? ''});
+    return notiString({subject: subjectName, directObj: noti.directObj.name ?? '', inObj: noti.inObj.name, prepObj: noti.prepObj.name ?? ''});
 }

@@ -19,25 +19,7 @@ export const getNotification = async (userId: string) => {
       subjects: noti.subjects as objectNoti[]
     }));
     const fullDataNoti = await Promise.all(mappedNotification.map(async (noti) => {
-      var prepObjData;
-      if (noti.prepObj.type === "nothing") {
-        prepObjData = noti.prepObj;
-      } else {
-        // @ts-ignore
-        prepObjData = await db[noti.prepObj.type].findUnique({
-          where: {
-            id: noti.prepObj.id,
-          },
-        });
-      }
-      if (noti.prepObj.type == 'course') {
-        prepObjData = {
-          id: prepObjData.id,
-          name: prepObjData.title,
-          image: prepObjData.image,
-          type: 'course'
-        };
-      };
+      var prepObjData = await handleObj(noti.prepObj);
 
       // @ts-ignore
       var inObjData = await db[noti.inObj.type].findUnique({
@@ -46,26 +28,7 @@ export const getNotification = async (userId: string) => {
         }
       });
 
-      var directObjData;
-      if (noti.directObj.type === 'nothing') {
-        directObjData = noti.directObj;
-      } else {
-        // @ts-ignore
-        directObjData = await db[noti.directObj.type].findUnique({
-          where: {
-            id: noti.directObj.id,
-          }
-        });
-        if (noti.directObj.type == 'course') {
-          directObjData = {
-            id: directObjData.id,
-            name: directObjData.title,
-            image: directObjData.image,
-            type: 'course'
-          };
-        };
-      }
-      
+      var directObjData = await handleObj(noti.directObj);
 
       return { ...noti,
         inObj: inObjData as objectNoti,
@@ -80,3 +43,34 @@ export const getNotification = async (userId: string) => {
     return;
   }
 };
+
+async function handleObj(inputObj: objectNoti) {
+  var inputObjData;
+  if (inputObj.type === "nothing") {
+    inputObjData = inputObj;
+  } else {
+    // @ts-ignore
+    inputObjData = await db[inputObj.type].findUnique({
+      where: {
+        id: inputObj.id,
+      },
+    });
+    if (inputObj.type === "course") {
+      inputObjData = {
+        id: inputObjData.id,
+        name: inputObjData.title,
+        image: inputObjData.image,
+        type: "course",
+      };
+    }
+    if (inputObjData == null) {
+      inputObjData = {
+        id: inputObj.id,
+        name: "",
+        image: "",
+        type: inputObj.type,
+      };
+    }
+  }
+  return inputObjData;
+}
