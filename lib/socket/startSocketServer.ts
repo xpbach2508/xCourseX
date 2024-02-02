@@ -70,6 +70,7 @@ export const initializeSocketIO = (
             eventSub(socket, "like:comment", "like:noti");
             eventSub(socket, "enroll:course", "new:enroll");
             eventSub(socket, "enroll:accept", "accepted:enroll");
+            eventSub(socket, "comment:forum", "new:comment");
 
             socket.on("disconnect", () => {
                 console.log("User has disconnected. userId: ", user.id);

@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { NotificationDataProps } from "@/lib/constant";
 import { useSocket } from "@/components/providers/socket/socket-context";
 import { emitSocketEventClient } from "@/lib/socket/client/emitSocketEventClient";
+import handleNotification from "@/lib/notification-template/handleNotification";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "short",
@@ -104,13 +105,13 @@ export const CommentCard = ({
           prepObj: { id: forumContext.courseId, type: "course", name: null, image: null },
         }
 
-        emitSocketEventClient(SocketClient, "like:comment", {message: `${forumContext.userName} liked your comment.`, userId: userId})
-
-        const pushNoti = await fetch(`/api/users/notification`, {
-          method: "POST",
-          body: JSON.stringify(newNoti),
-          headers,
-        });
+        handleNotification(
+          SocketClient,
+          "like:comment",
+          `${forumContext.userName} liked your comment.`,
+          userId ?? '',
+          newNoti
+        );
       };
       router.refresh();
     }
@@ -233,7 +234,7 @@ export const CommentCard = ({
 
       {isReplying && (
         <div className="mt-1 ml-10">
-          <CommentForm parentId={id} />
+          <CommentForm parentId={id} parentUserId={userId}/>
         </div>
       )}
 

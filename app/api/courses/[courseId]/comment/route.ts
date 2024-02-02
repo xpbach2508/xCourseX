@@ -24,8 +24,16 @@ export async function POST(
         parentId: commentData.parentId,
       },
     });
+    const teacher = await db.course.findFirst({
+      where: {
+        id: params.courseId,
+      },
+      select: {
+        userId: true,
+      }
+    })
     if (newComment)
-      return NextResponse.json({ message: "Commented" }, { status: 200 });
+      return NextResponse.json({ message: "Commented" , teacher}, { status: 200 });
   } catch (error) {
     console.log("FORUM_COMMENT", error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });

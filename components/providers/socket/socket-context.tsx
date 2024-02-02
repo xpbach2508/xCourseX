@@ -56,6 +56,10 @@ export const SocketProvider = ({children}: {children: React.ReactNode}) => {
                 toast(message);
             });
 
+            socketClient.on("new:comment", (message) => {
+                toast(message);
+            });
+
             return () => {
                 socketClient.disconnect();
             };

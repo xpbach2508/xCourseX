@@ -5,6 +5,9 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useForum } from "./_contexts/forum-context";
 import toast from "react-hot-toast";
+import { NotificationDataProps } from "@/lib/constant";
+import { useSocket } from "@/components/providers/socket/socket-context";
+import handleNotification from "@/lib/notification-template/handleNotification";
 interface FormData {
   comment: string;
   userId: string | undefined;
@@ -12,10 +15,12 @@ interface FormData {
 }
 interface ParentIdProps {
   parentId: string | null;
+  parentUserId: string | null;
 }
-const CommentForm = ({ parentId }: ParentIdProps) => {
+const CommentForm = ({ parentId, parentUserId }: ParentIdProps) => {
   const router = useRouter();
   const forumContext = useForum();
+  const { socket: SocketClient, isConnected } = useSocket();
   const [formData, setFormData] = useState<FormData>({
     comment: "",
     userId: forumContext.userId,
@@ -39,11 +44,35 @@ const CommentForm = ({ parentId }: ParentIdProps) => {
       body: JSON.stringify({ formData }),
       headers,
     });
+    const response = await res.json();
     if (!res.ok) {
-      const response = await res.json();
       toast.error(response.message);
     } else {
+      const isReplying = parentId ? true : false;
+      const isTeacher = response.teacher.userId === forumContext.userId;
+      var newNoti : NotificationDataProps = {
+        type: isReplying ? 'replyComment' : 'commentForum',
+        subjectCount: 1,
+        subjects: [{ id: forumContext.userId ?? '', type: 'user', name: forumContext.userName ?? '', image: forumContext.userImage ?? '' }],
+        directObj: { id: forumContext.courseId, type: 'course', name: null, image: null },
+        inObj: { id: isReplying ? parentUserId : response.teacher.userId, type: 'user', name: null, image: null },
+        prepObj: { id: forumContext.courseId, type: "course", name: null, image: null },
+      }
+    
+      if (!isTeacher) 
+      handleNotification(
+        SocketClient,
+        "comment:forum",
+        isReplying ? `${forumContext.userName } replied to your comment.` : `${forumContext.userName } commented to your course.`,
+        isReplying ? parentUserId : response.teacher.userId,
+        newNoti
+      );
       toast.success("Commented");
+      setFormData({
+        comment: "",
+        userId: forumContext.userId,
+        parentId: parentId,
+      });
       router.refresh();
     }
   };
