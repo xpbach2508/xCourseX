@@ -115,7 +115,7 @@ export const columns: ColumnDef<WaitlistItem>[] = [
       );
     },
     cell: ({ row }) => {
-      const { id, isAccepted } = row.original;
+      const { id, isAccepted, userId } = row.original;
 
       const [isApproved, setApproved] = useState(isAccepted);
       const [isAcceptVisible, setIsAcceptVisible] = useState(false);
@@ -127,16 +127,17 @@ export const columns: ColumnDef<WaitlistItem>[] = [
       const handleAcceptClick = async () => {
         try {
           const response = await axios.post(`/api/enroll/${id}`);
+          const isOwner = userId === session?.user.uid;
           var newNoti : NotificationDataProps = {
             type: 'acceptEnroll',
             subjectCount: 1,
-            subjects: [{ id: session?.user.uid ?? '', type: 'user', name: session?.user.name ?? '', image: session?.user.image ?? '' }],
+            subjects: [{ id: id ?? '', type: 'user', name: session?.user.name ?? '', image: session?.user.image ?? '' }],
             directObj: { id: '', type: 'nothing', name: null, image: null },
             inObj: { id: response.data.userId ?? '', type: 'user', name: null, image: null },
             prepObj: { id: response.data.courseId, type: "course", name: null, image: null },
           }
           
-          handleNotification(
+          if (!isOwner) handleNotification(
             SocketClient,
             "enroll:accept",
             `${session?.user.name} accept your enrollment.`,

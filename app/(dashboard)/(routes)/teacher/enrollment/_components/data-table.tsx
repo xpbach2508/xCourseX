@@ -91,6 +91,7 @@ export function DataTable<TData extends WaitlistItem>({
       } else {
         for (const row of selectedRows) {
           const enrollId = row.original.id;
+          const isOwner = row.original.userId === session?.user.uid;
           if (!row.original.isAccepted) {
             const response = await axios.post(`/api/enroll/${enrollId}`);
             var newNoti : NotificationDataProps = {
@@ -102,7 +103,7 @@ export function DataTable<TData extends WaitlistItem>({
               prepObj: { id: response.data.courseId, type: "course", name: null, image: null },
             }
             
-            handleNotification(
+            if (!isOwner) handleNotification(
               SocketClient,
               "enroll:accept",
               `${session?.user.name} accept your enrollment.`,
